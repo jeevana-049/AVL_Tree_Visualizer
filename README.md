@@ -23,6 +23,16 @@ It supports **insertions and deletions** with automatic balancing (LL, RR, LR, R
 - JavaScript (frontend visualization)
 - HTML + CSS (UI)
 
+## 📸 Screenshots
+- Insert 
+  ![alt text](image.png)
+  ![alt text](image-1.png)
+  ![alt text](image-2.png)
+- Delete
+  ![alt text](image-3.png)
+- AVL Tree
+  ![alt text](image-4.png)
+
 ### How to Run Locally
 ```bash
 git clone https://github.com/jeevana-049/AVL_Tree_Visualizer.git
