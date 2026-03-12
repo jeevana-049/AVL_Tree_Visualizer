@@ -1,37 +1,116 @@
 class TreeNode {
-    constructor(key, x, y) {
+    constructor(key) {
         this.key = key;
-        this.x = x;
-        this.y = y;
+        this.height = 1;
         this.left = null;
         this.right = null;
     }
 }
 
-function drawNode(ctx, node) {
+// Utility functions
+function height(node) {
+    return node ? node.height : 0;
+}
+
+function getBalance(node) {
+    return node ? height(node.left) - height(node.right) : 0;
+}
+
+function updateHeight(node) {
+    node.height = 1 + Math.max(height(node.left), height(node.right));
+}
+
+// Rotations
+function rightRotate(y) {
+    let x = y.left;
+    let T2 = x.right;
+
+    x.right = y;
+    y.left = T2;
+
+    updateHeight(y);
+    updateHeight(x);
+
+    return x;
+}
+
+function leftRotate(x) {
+    let y = x.right;
+    let T2 = y.left;
+
+    y.left = x;
+    x.right = T2;
+
+    updateHeight(x);
+    updateHeight(y);
+
+    return y;
+}
+
+// AVL Insert
+function insert(node, key) {
+    if (!node) return new TreeNode(key);
+
+    if (key < node.key) {
+        node.left = insert(node.left, key);
+    } else if (key > node.key) {
+        node.right = insert(node.right, key);
+    } else {
+        return node; // no duplicates
+    }
+
+    updateHeight(node);
+
+    let balance = getBalance(node);
+
+    // Left Left
+    if (balance > 1 && key < node.left.key) return rightRotate(node);
+
+    // Right Right
+    if (balance < -1 && key > node.right.key) return leftRotate(node);
+
+    // Left Right
+    if (balance > 1 && key > node.left.key) {
+        node.left = leftRotate(node.left);
+        return rightRotate(node);
+    }
+
+    // Right Left
+    if (balance < -1 && key < node.right.key) {
+        node.right = rightRotate(node.right);
+        return leftRotate(node);
+    }
+
+    return node;
+}
+
+// Drawing functions
+function drawTree(ctx, node, x, y, spacing) {
     if (!node) return;
 
+    // Draw node
     ctx.beginPath();
-    ctx.arc(node.x, node.y, 20, 0, 2 * Math.PI);
+    ctx.arc(x, y, 20, 0, 2 * Math.PI);
     ctx.fillStyle = "#87CEEB";
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = "black";
     ctx.font = "16px Arial";
-    ctx.fillText(node.key, node.x - 8, node.y + 5);
+    ctx.fillText(node.key, x - 8, y + 5);
 
+    // Draw children
     if (node.left) {
-        ctx.moveTo(node.x, node.y);
-        ctx.lineTo(node.left.x, node.left.y);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - spacing, y + 80);
         ctx.stroke();
-        drawNode(ctx, node.left);
+        drawTree(ctx, node.left, x - spacing, y + 80, spacing / 1.5);
     }
     if (node.right) {
-        ctx.moveTo(node.x, node.y);
-        ctx.lineTo(node.right.x, node.right.y);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + spacing, y + 80);
         ctx.stroke();
-        drawNode(ctx, node.right);
+        drawTree(ctx, node.right, x + spacing, y + 80, spacing / 1.5);
     }
 }
 
@@ -39,22 +118,7 @@ function clearCanvas(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-function insertNode(root, key) {
-    if (key < root.key) {
-        if (!root.left) {
-            root.left = new TreeNode(key, root.x - 100, root.y + 100);
-        } else {
-            insertNode(root.left, key);
-        }
-    } else {
-        if (!root.right) {
-            root.right = new TreeNode(key, root.x + 100, root.y + 100);
-        } else {
-            insertNode(root.right, key);
-        }
-    }
-}
-
+// Global root
 let root = null;
 
 function addNode() {
@@ -62,12 +126,8 @@ function addNode() {
     const ctx = canvas.getContext("2d");
     const value = parseInt(document.getElementById("nodeValue").value);
 
-    if (!root) {
-        root = new TreeNode(value, 400, 100);
-    } else {
-        insertNode(root, value);
-    }
+    root = insert(root, value);
 
     clearCanvas(ctx, canvas);
-    drawNode(ctx, root);
+    drawTree(ctx, root, canvas.width / 2, 50, 150);
 }
