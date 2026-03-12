@@ -23,11 +23,6 @@ It supports **insertions and deletions** with automatic balancing (LL, RR, LR, R
 - JavaScript (frontend visualization)
 - HTML + CSS (UI)
 
-## 📸 Screenshots
-*(Add screenshots of your tree here)*
-
----
-
 ### How to Run Locally
 ```bash
 git clone https://github.com/jeevana-049/AVL_Tree_Visualizer.git
